@@ -27,7 +27,7 @@ struct CombustionReactor
     double atmopshericPressure;//MPa
 };
 
-struct RocketOneDimResolved
+struct preliminaryResults
 {
     CombustionReactor intialConditions;
     double massFlowRate;
@@ -42,9 +42,9 @@ struct RocketOneDimResolved
 
 
 
-class RocketOneDimAnalyser{
+class PreliminaryAnalyser{
     public:
-        RocketOneDimAnalyser(CombustionReactor initializer){
+        PreliminaryAnalyser(CombustionReactor initializer){
             this->intialConditions = initializer;
             this->cStar = 0.0;
             this->massFlowRate = 0.0;
@@ -55,7 +55,7 @@ class RocketOneDimAnalyser{
             this->thrustCoefficient = 0.0;
 
         };
-        ~RocketOneDimAnalyser() {};
+        ~PreliminaryAnalyser() {};
         CombustionReactor intialConditions;
         double massFlowRate;
         double throatArea;
@@ -71,6 +71,6 @@ class RocketOneDimAnalyser{
         double getSpeficImpulse();
         double getCStar();
         double getThrustCoefficient();
-        RocketOneDimResolved resolve();
+        preliminaryResults resolve();
 
 };

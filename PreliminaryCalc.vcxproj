@@ -22,6 +22,7 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{C8A3668B-0BE7-4EC5-8CAD-D58FB00CD254}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <ProjectName>DeLeval1D</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -120,10 +121,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\app.cpp" />
-    <ClCompile Include="src\lib\rocket1D.cpp" />
+    <ClCompile Include="src\lib\csvExporter.cpp" />
+    <ClCompile Include="src\lib\engine.cpp" />
+    <ClCompile Include="src\lib\geometryGenerator.cpp" />
+    <ClCompile Include="src\lib\point.cpp" />
+    <ClCompile Include="src\lib\preliminaryCalculator.cpp" />
+    <ClCompile Include="src\thermo\flowEq.cpp" />
+    <ClCompile Include="src\thermo\ISAAtmosphere.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\lib\rocket1D.h" />
+    <ClInclude Include="src\lib\csvExporter.h" />
+    <ClInclude Include="src\lib\engine.h" />
+    <ClInclude Include="src\lib\geometryGenerator.h" />
+    <ClInclude Include="src\lib\point.h" />
+    <ClInclude Include="src\lib\preliminaryCalculator.h" />
+    <ClInclude Include="src\thermo\flowEq.h" />
+    <ClInclude Include="src\thermo\ISAAtmosphere.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

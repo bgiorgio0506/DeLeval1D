@@ -1,8 +1,8 @@
-#include "rocket1D.h"
 #include <math.h>
+#include "preliminaryCalculator.h"
 
 
-double RocketOneDimAnalyser::getExitMachNumber(){
+double PreliminaryAnalyser::getExitMachNumber(){
     const double gamma = this->intialConditions.gamma;
     const double exponent = (gamma - 1) /gamma;
     const double pressureRatio = pow(this->intialConditions.combustionPressure / this->intialConditions.exitPressure, exponent);
@@ -12,7 +12,7 @@ double RocketOneDimAnalyser::getExitMachNumber(){
     return this->exitMachNumber = sqrt(specHeatRatio*(pressureRatio-1));
 }
 
-double RocketOneDimAnalyser::getExitAreaToThroatAreaRatio(){ //todo check fo validity
+double PreliminaryAnalyser::getExitAreaToThroatAreaRatio(){ //todo check fo validity
     const double gamma = this->intialConditions.gamma;
     const double exponent = (gamma + 1) / (2 * (gamma - 1));
     const double mReciprocal = 1 / this->exitMachNumber;
@@ -20,7 +20,7 @@ double RocketOneDimAnalyser::getExitAreaToThroatAreaRatio(){ //todo check fo val
     return this->exitAreaToThroatAreaRatio = mReciprocal * pow(specHeatRatio * (1 + (((gamma - 1) / 2) * pow(this->exitMachNumber, 2))), exponent);
 }
 
-double RocketOneDimAnalyser::getCStar(){
+double PreliminaryAnalyser::getCStar(){
     const double gamma = this->intialConditions.gamma;
     const double R = 8.314 / (this->intialConditions.molecularWeight/1000); //g/mol -> kg/mol
     const double T = this->intialConditions.combustionTemperature;
@@ -29,7 +29,7 @@ double RocketOneDimAnalyser::getCStar(){
      return this->cStar = (sqrt(gamma*R*T)/gamma)*pow(2/(gamma+1), exponent);
 }
 
-double RocketOneDimAnalyser::getThrustCoefficient(){
+double PreliminaryAnalyser::getThrustCoefficient(){
     const double gamma = this->intialConditions.gamma;
     const double pressureRatio = this->intialConditions.exitPressure / this->intialConditions.combustionPressure;
     const double exitAreaToThroatAreaRatio = this->exitAreaToThroatAreaRatio;
@@ -39,22 +39,22 @@ double RocketOneDimAnalyser::getThrustCoefficient(){
     return this->thrustCoefficient = (gamma * sqrt(pow(2 / (gamma + 1), exponent) * ((2 / (gamma - 1)) * (1 - pow(pressureRatio, (gamma - 1) / gamma))))) + (pressureCorrected * exitAreaToThroatAreaRatio);
 };
 
-double RocketOneDimAnalyser::getThroatArea(){
+double PreliminaryAnalyser::getThroatArea(){
   //use the throat area ratio to calculate the throat area
     return this->throatArea = (this->intialConditions.thrust * 1000) / ((this->intialConditions.combustionPressure * 1e+6) * this->thrustCoefficient);
 }
 
-double RocketOneDimAnalyser::getMassFlowRate(){
+double PreliminaryAnalyser::getMassFlowRate(){
     return this->massFlowRate = ((this->intialConditions.combustionPressure*1e+6) * this->throatArea) / this->cStar;
 }
 
-double RocketOneDimAnalyser::getSpeficImpulse(){
+double PreliminaryAnalyser::getSpeficImpulse(){
     return this->speficImpulse = (this->cStar * this->thrustCoefficient) / 9.81;
 }
 
 /**TODO: resolve()*/
-RocketOneDimResolved RocketOneDimAnalyser::resolve(){
-    RocketOneDimResolved resolved;
+preliminaryResults PreliminaryAnalyser::resolve(){
+    preliminaryResults resolved;
     if(this->intialConditions.exitPressure == 0){
         this->intialConditions.exitPressure = 0.1;
     }
