@@ -30,9 +30,6 @@
     <ClCompile Include="src\lib\point.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\thermo\ISAAtmosphere.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\thermo\flowEq.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -51,9 +48,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\lib\point.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\thermo\ISAAtmosphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\thermo\flowEq.h">

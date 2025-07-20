@@ -8,6 +8,8 @@
  * @copyright Copyright (c) 2024
  * 
  */
+#ifndef PRELIMINARY_CALCULATOR_H
+#define PRELIMINARY_CALCULATOR_H
 #include <string>
 
 using namespace std;
@@ -74,3 +76,4 @@ class PreliminaryAnalyser{
         preliminaryResults resolve();
 
 };
+#endif

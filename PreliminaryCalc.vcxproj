@@ -127,7 +127,6 @@
     <ClCompile Include="src\lib\point.cpp" />
     <ClCompile Include="src\lib\preliminaryCalculator.cpp" />
     <ClCompile Include="src\thermo\flowEq.cpp" />
-    <ClCompile Include="src\thermo\ISAAtmosphere.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\lib\csvExporter.h" />
@@ -136,7 +135,6 @@
     <ClInclude Include="src\lib\point.h" />
     <ClInclude Include="src\lib\preliminaryCalculator.h" />
     <ClInclude Include="src\thermo\flowEq.h" />
-    <ClInclude Include="src\thermo\ISAAtmosphere.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
