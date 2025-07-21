@@ -58,6 +58,7 @@ preliminaryResults PreliminaryAnalyser::resolve(){
     if(this->intialConditions.exitPressure == 0){
         this->intialConditions.exitPressure = 0.1;
     }
+    resolved.intialConditions = this->intialConditions;
     resolved.exitMachNumber = this->getExitMachNumber();
     resolved.exitAreaToThroatAreaRatio = this->getExitAreaToThroatAreaRatio();
     resolved.cStar = this->getCStar();

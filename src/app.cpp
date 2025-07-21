@@ -16,7 +16,7 @@ int main()
 {
     std::cout << "Welcome to Rocket Engine Analyzer\n";
 	std::cout << "This program will help you on the first design analisys.\n The program can perform:\n 1. 1D Analysis\n 2. From the 1D Analysis can extrapolate the correct data to solve the geometry nozzle";
-    std::cout << "\n\n In the future plans are also to add the ability to solve the combuustion at equilibrium, preliminary design of the combustion chamber and cooling system.\n\n";
+    std::cout << "\n\n In the future plans are also to add the ability to solve the combustion at equilibrium, preliminary design of the combustion chamber and cooling system.\n\n";
     oneDAnalysis();
     system("pause");
 
@@ -39,7 +39,7 @@ void oneDAnalysis()
 
 CombustionReactor configAnalysis() {
     CombustionReactor combParams;
-    std::cout << "Rocket Nozzle 1D analysis\n";
+    std::cout << "Rocket Nozzle Preliminary analysis\n";
     std::cout << "Enter the propellant type: ";
     std::cin >> combParams.prop;
     std::cout << "Enter the thrust (kN): ";

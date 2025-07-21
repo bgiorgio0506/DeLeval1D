@@ -8,6 +8,7 @@ void engine::preliminaryAnalysis()
 {
 	PreliminaryAnalyser analyser(this->intialConditions);
 	this->resolved = analyser.resolve();
+	this->geometryGenerator.updateConditions(this->resolved);
 	this->isNozzleResolved = true;
 }
 
@@ -15,7 +16,7 @@ void engine::generateGeometry()
 {
 	if (this->isNozzleResolved)
 	{
-		this->geometryGenerator.generateGeometry({this->nSegments, this->resolved.exitAreaToThroatAreaRatio, sqrt(this->resolved.throatArea / M_PI)});
+		this->geometryGenerator.generateGeometry({nSegments, this->resolved.exitAreaToThroatAreaRatio, sqrt(this->resolved.throatArea / M_PI)});
 	}
 	else
 		std::invalid_argument("Nozzle not yet resolved");

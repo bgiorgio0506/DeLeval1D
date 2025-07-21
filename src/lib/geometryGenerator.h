@@ -40,7 +40,8 @@ public:
 	GeometryGenerator() = default;
 	GeometryGenerator(preliminaryResults preliminaryRes);
 	// TODO: data structure to hold the generated geometry data
-	void generateGeometry(const GeometryParameters &params);
+	void generateGeometry(const GeometryParameters params);
+	void updateConditions(preliminaryResults newCond);
 	void clearGeometry();
 	// Get geomtry
 	geometryLine getGeometry(PointType type = POINT_TYPE_UNKNOWN);
