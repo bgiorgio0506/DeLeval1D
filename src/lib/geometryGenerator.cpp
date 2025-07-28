@@ -32,23 +32,23 @@ void GeometryGenerator::generateGeometry(const GeometryParameters params)
 	geometryData.clear();
 	// Determines max wall angles and intermidiates
 	const double max_wall_angle = this->flowAnalyzer.getPmAngle(this->resolved1DimEngine.exitMachNumber, this->initialConditions.gamma) / 2;
-	std::vector<double> wallAngles = this->geometryUtils.interpolateAngle(max_wall_angle, params.nLines+1);
+	std::vector<double> wallAngles = this->geometryUtils.interpolateAngle(max_wall_angle, params.nLines);
 	// init geometry vector
 	this->nLines = params.nLines;
 	this->initializeGeometryData(params.nLines);
 	// methods of charactestics
 	// step 0
-	const double throatRadius = params.throatRadious;
+	const double throatRadius = params.throatRadious*100; //debug
 	cPoint throatPoint = cPoint(0.0, throatRadius, 0.19, 0);
 	throatPoint.setFlowProps(1.026, 0.19, 0);
-	throatPoint.setPointType(POINT_TYPE_WALL);
+	throatPoint.setPointType(POINT_TYPE_UNKNOWN);
 	double throatSlope = -75.23; // deg
 
 	double x0_loc = throatRadius * tan(DEG2RAD(90 + throatSlope));
-	double mach = this->flowAnalyzer.getMachFromPM(throatPoint.getProperties().mach, throatPoint.getProperties().pm_angle + throatPoint.mu, this->initialConditions.gamma);
+	double mach = this->flowAnalyzer.getMachFromPM(throatPoint.getProperties().mach, throatPoint.getProperties().pm_angle, this->initialConditions.gamma);
 	double mu = RAD2DEG(asin(1 / mach));
 	this->geometryData[0].setPoint(x0_loc, 0, mu);
-	this->geometryData[0].setFlowProps(mach, throatPoint.mu + throatPoint.getProperties().pm_angle, 0);
+	this->geometryData[0].setFlowProps(mach, throatPoint.mu + throatPoint.getProperties().pm_angle, this->geometryData[0].getProperties().flow_angle);
 	this->geometryData[0].setPointType(POINT_TYPE_CENTERLINE);
 
 	for (int i = 1; i <= this->nLines; i++)
@@ -69,17 +69,17 @@ void GeometryGenerator::generateGeometry(const GeometryParameters params)
 		else if (point.getProperties().type == POINT_TYPE_WALL)
 		{
 			point.setFlowProps(prev_point.getProperties().mach, prev_point.getProperties().pm_angle, prev_point.getProperties().flow_angle);
-			point.setMu(prev_point.getPoint()[2]);
+			point.setMu(prev_point.mu);
 			tmpPoint = this->findNext(max_wall_angle, point, prev_point);
 		}
 
-		PlainPoint coords = this->geometryUtils.returnPlainPointIntersection(throatPoint.getPoint()[0], throatPoint.getPoint()[1], tmpPoint.rightDerivative, prev_point.getPoint()[0], throatPoint.getPoint()[1], tmpPoint.leftDerivative);
+		PlainPoint coords = this->geometryUtils.returnPlainPointIntersection(throatPoint.x, throatPoint.y, tmpPoint.rightDerivative, prev_point.x, throatPoint.y, tmpPoint.leftDerivative);
 		point.setXY(coords.x, coords.y);
 	}
 
 	int j = 0;
 	int k = 1;
-	for (int i = this->nLines+1; i < nPoints; i++)
+	for (int i = this->nLines+1; i < this->nPoints; i++)
 	{
 		cPoint& point = this->geometryData[i];
 		cPoint& prev_point = this->geometryData[i - 1];
@@ -88,7 +88,11 @@ void GeometryGenerator::generateGeometry(const GeometryParameters params)
 		{
 		case (POINT_TYPE_WALL):
 		{
-			point.setFlowProps(prev_point.getProperties().mach, prev_point.getProperties().pm_angle, prev_point.getProperties().flow_angle);
+			point.setFlowProps(
+				prev_point.getProperties().mach,
+				prev_point.getProperties().pm_angle, 
+				prev_point.getProperties().flow_angle
+			);
 			point.setMu(prev_point.mu);
 			tmpPoint = this->findNext(prev_point.getProperties().flow_angle, point, prev_point);
 			PlainPoint coords = this->geometryUtils.returnPlainPointIntersection(this->geometryData[i - (this->nLines - j)].x, this->geometryData[i - (this->nLines - j)].y, tmpPoint.rightDerivative, prev_point.x, prev_point.y, tmpPoint.leftDerivative);
@@ -105,13 +109,13 @@ void GeometryGenerator::generateGeometry(const GeometryParameters params)
 				this->flowAnalyzer.getMachFromPM(this->geometryData[i - (this->nLines - j)].getProperties().mach, pm_angle, this->initialConditions.gamma),
 				pm_angle,
 				0);
-			point.setMu(RAD2DEG(1 / point.getProperties().mach));
+			point.setMu(RAD2DEG(asin(1 / point.getProperties().mach)));
 			tmpPoint = {
 				0.0, // not needed for next steps!!
 				0.0,
 				0.0,
 				0.0,
-				((this->geometryData[i - (this->nLines - j)].getProperties().flow_angle - this->geometryData[i - (this->nLines - j)].mu + point.getProperties().flow_angle - point.mu) / 2)};
+				(this->geometryData[i - (this->nLines - j)].getProperties().flow_angle - this->geometryData[i - (this->nLines - j)].mu + point.getProperties().flow_angle - point.mu) / 2};
 			PlainPoint coords = this->geometryUtils.returnPlainPointIntersection(this->geometryData[i - (this->nLines - j)].x, this->geometryData[i - (this->nLines - j)].y, tmpPoint.rightDerivative, this->geometryData[i - (this->nLines - j + 1)].x, this->geometryData[i - (this->nLines - j + 1)].y, tmpPoint.leftDerivative);
 			point.setXY(coords.x, coords.y);
 			break;
@@ -119,12 +123,12 @@ void GeometryGenerator::generateGeometry(const GeometryParameters params)
 		// POINT UNKWON
 		default:
 		{
-			double pm_angle = ((this->geometryData[i - (this->nLines - j)].getProperties().flow_angle + this->geometryData[i - (this->nLines - j)].mu) - (prev_point.getProperties().flow_angle + prev_point.mu)) / 2;
+			double pm_angle = (this->geometryData[i - (this->nLines - j)].getProperties().flow_angle + this->geometryData[i - (this->nLines - j)].getProperties().pm_angle - (prev_point.getProperties().flow_angle + prev_point.getProperties().pm_angle)) / 2;
 			point.setFlowProps(
-				this->flowAnalyzer.getMachFromPM(this->geometryData[i - (this->nLines - j)].getProperties().mach, pm_angle, this->initialConditions.gamma),
+				this->flowAnalyzer.getMachFromPM(prev_point.getProperties().mach, pm_angle, this->initialConditions.gamma),
 				pm_angle,
 				wallAngles[k]);
-			point.setMu(RAD2DEG(1 / point.getProperties().mach));
+			point.setMu(RAD2DEG(asin(1 / point.getProperties().mach)));
 			double tht_r = (this->geometryData[i - (this->nLines - j)].getProperties().flow_angle - this->geometryData[i - (this->nLines - j)].mu + point.getProperties().flow_angle - point.mu) / 2;
 			double tht_l = (prev_point.getProperties().flow_angle + prev_point.mu + point.getProperties().flow_angle + point.mu) / 2;
 			tmpPoint = {0.0, 0.0, 0.0, tht_l, tht_r};
@@ -165,14 +169,14 @@ void GeometryGenerator::initializeGeometryData(int nLines)
 {
 	// Initialize the geometry data structure with the specified number of lines and points
 	// init characteristics method
-	nPoints = nLines + nLines * (nLines + 1) / 2;
-	if (nPoints <= 0)
+	this->nPoints = nLines + nLines * (nLines + 1) / 2;
+	if (this->nPoints <= 0)
 	{
 		throw std::invalid_argument("Number of points must be greater than zero.");
 	}
 	int j = 1 + nLines;
 	int k = 0;
-	for (int i = 0; i <= nPoints; i++)
+	for (int i = 1; i <= this->nPoints; i++)
 	{
 		cPoint point(0.0, 0.0, 0.0, cPointProperties{i, 0.0, 0.0, 0.0, POINT_TYPE_UNKNOWN});
 		if (i == j + k)
@@ -184,10 +188,11 @@ void GeometryGenerator::initializeGeometryData(int nLines)
 		this->geometryData.push_back(point);
 	}
 
-	for (int i = 0; i < nPoints; i++)
+	for (int i = 0; i < this->nPoints; i++)
 	{
 		if (this->geometryData[i].getProperties().index == 1)
 			this->geometryData[i].setPointType(POINT_TYPE_CENTERLINE);
+
 		else if (i > 1 && this->geometryData[i - 1].getProperties().type == POINT_TYPE_WALL)
 			this->geometryData[i].setPointType(POINT_TYPE_CENTERLINE);
 	}
@@ -224,8 +229,14 @@ void GeometryGenerator::clearGeometry()
 	this->geometryData.clear();
 }
 
+#pragma region GeometryUtils
 std::vector<double> GeometryUtils::interpolateAngle(double theta, int n)
 {
+	//std::vector<double> result;
+	//double delta = theta / n;
+	//for (int i = 0; i <= n; ++i)
+	//	result.push_back(i * delta);
+	//return result;
 	std::vector<double> result = {0};
 	double temp = theta - (1 + fmod(theta, 1));
 	double delta = temp / (n - 2);
@@ -239,11 +250,11 @@ std::vector<double> GeometryUtils::interpolateAngle(double theta, int n)
 /*
  * Note to self refactor this
  */
-PlainPoint GeometryUtils::returnPlainPointIntersection(double x1, double y1, double tht1, double x2, double y2, double tht2)
+PlainPoint GeometryUtils::returnPlainPointIntersection(double x_dx, double y_dx, double tht_dx, double x_lft, double y_lft, double tht_lft)
 {
-	tht1 = DEG2RAD(tht1);
-	tht2 = DEG2RAD(tht2);
-	double x = (x1 * tan(tht1) - x2 * tan(tht2) + y2 - y1) / (tan(tht1) - tan(tht2));
-	double y = (tan(tht1) * tan(tht2) * (x1 - x2) + tan(tht1) * y1 - tan(tht1) * y1) / (tan(tht1) - tan(tht2));
+	tht_dx = DEG2RAD(tht_dx);
+	tht_lft = DEG2RAD(tht_lft);
+	double x = (x_dx * tan(tht_dx) - x_lft * tan(tht_lft) + y_lft - y_dx) / (tan(tht_dx) - tan(tht_lft));
+	double y = (tan(tht_dx) * tan(tht_lft) * (x_dx - x_lft) + tan(tht_dx) * y_lft - tan(tht_lft) * y_dx) / (tan(tht_dx) - tan(tht_lft));
 	return {x, y};
 }
